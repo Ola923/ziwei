@@ -30,15 +30,18 @@ export default function Home() {
       const palace = astrolabe.palaces.find((p: any) => p.name === "命宮");
       const stars = palace?.majorStars.map((s: any) => s.name).join('、') || "無主星";
 
-      // 3. 直接呼叫妳剛才在 Vercel 設定好的 API Key
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      // 3. 呼叫 Gemini AI (確保 API Key 被讀取)
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
+      
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `妳是犀利紫微大師。命主主星是：${stars}。請針對此組合執行毒舌解盤，分析 2026 創業運勢，最後給一句犀利金句。` }] }]
+          contents: [{ parts: [{ text: `妳是專業紫微大師。命主主星是：${stars}。請針對此組合執行毒舌解盤，並分析 2026 創業運勢，最後給一句犀利金句。` }] }]
         })
       });
+
+      if (!response.ok) throw new Error("AI 連線失敗"); // 增加報錯追蹤
 
       const aiData = await response.json();
       const aiText = aiData.candidates[0].content.parts[0].text;
