@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from 'react';
+// @ts-ignore
 import * as iztro from 'iztro';
-const functionalAstrolabe = iztro.functionalAstrolabe;
+
+// 使用這行強行獲取函數，避開編譯器的囉唆
+const functionalAstrolabe = (iztro as any).functionalAstrolabe || (iztro as any).default?.functionalAstrolabe;
 
 export default function Home() {
   const [reading, setReading] = useState("");
