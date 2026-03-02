@@ -1,0 +1,11 @@
+{
+  "name": "ziwei-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "iztro": "latest",
+    "lucide-react": "latest"
+  }
+}
