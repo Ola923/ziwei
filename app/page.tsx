@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { functionalAstrolabe } from 'iztro';
+import * as iztro from 'iztro';
+const functionalAstrolabe = iztro.functionalAstrolabe;
 
 export default function Home() {
   const [reading, setReading] = useState("");
