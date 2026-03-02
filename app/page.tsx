@@ -7,7 +7,7 @@ export default function Home() {
   const [reading, setReading] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const startAnalysis = async (e: React.FormEvent<HTMLFormElement>) => {
+  const startAnalysis = async (e: any) => {
     e.preventDefault();
     setReading("");
     setLoading(true);
@@ -15,12 +15,11 @@ export default function Home() {
     try {
       const formData = new FormData(e.currentTarget);
       const rawDate = formData.get("date") as string;
-      // 強制轉換格式
       const date = rawDate ? rawDate.replace(/\//g, '-') : ""; 
       const hour = parseInt(formData.get("hour") as string || "0");
       const gender = formData.get("gender") as string || "女";
 
-      // 雙重驗證引入方式，確保編譯通過
+      // 雙重驗證引入方式
       const lib: any = iztro;
       const func = lib.functionalAstrolabe || (lib.default && lib.default.functionalAstrolabe);
       
@@ -49,4 +48,3 @@ export default function Home() {
         <input type="text" name="date" placeholder="1990-03-23" required style={{ padding: '12px', borderRadius: '8px', border: '1px solid #334155', background: '#1e293b', color: '#fff' }} />
         <label>出生時辰</label>
         <select name="hour" style={{ padding: '12px', borderRadius: '8px', background: '#1e293b', color: '#fff', border: '1px solid #334155' }}>
-          <option value="0">子時 (23:00-01:00)</option><option value="
