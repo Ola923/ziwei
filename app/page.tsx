@@ -12,29 +12,41 @@ export default function Home() {
 
   const startAnalysis = async (e: any) => {
     e.preventDefault();
+    setReading("");
     setLoading(true);
     const formData = new FormData(e.target);
     
-    // 修正日期格式，確保 iztro 能讀懂
-    const rawDate = formData.get("date") as string; 
+    // 1. 強制將斜線 / 置換為橫槓 -，確保 iztro 不會生氣
+    const rawDate = formData.get("date") as string;
     const date = rawDate.replace(/\//g, '-'); 
     const hour = parseInt(formData.get("hour") as string);
     const gender = formData.get("gender") as string;
 
     try {
-      // 1. 精準排盤
+      // 2. 執行精準物理排盤
       // @ts-ignore
-      const astrolabe = (iztro.functionalAstrolabe || iztro.default.functionalAstrolabe)(date, hour, gender, true);
+      const functionalAstrolabe = iztro.functionalAstrolabe || iztro.default.functionalAstrolabe;
+      const astrolabe = functionalAstrolabe(date, hour, gender, true);
       const palace = astrolabe.palaces.find((p: any) => p.name === "命宮");
       const stars = palace?.majorStars.map((s: any) => s.name).join('、') || "無主星";
 
-      // 2. 這裡預留給妳貼入 Gemini API 的呼叫邏輯
-      // 目前我們先讓它顯示精準結果，確保排盤成功
-      setReading(`【大師開示】\n妳的主星是：${stars}\n\n(AI 毒舌加載中：請確認 Vercel 後台已填入 API Key)`);
+      // 3. 直接呼叫妳剛才在 Vercel 設定好的 API Key
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `妳是犀利紫微大師。命主主星是：${stars}。請針對此組合執行毒舌解盤，分析 2026 創業運勢，最後給一句犀利金句。` }] }]
+        })
+      });
+
+      const aiData = await response.json();
+      const aiText = aiData.candidates[0].content.parts[0].text;
+      setReading(`【命宮主星】：${stars}\n\n${aiText}`);
       
     } catch (err) { 
       console.error(err);
-      alert("日期格式怪怪的，請確保是 YYYY-MM-DD 喔！"); 
+      setReading("大師斷訊了！請確認 Vercel 的 API Key 是否正確，並重新輸入日期試試。");
     }
     setLoading(false);
   };
