@@ -14,20 +14,27 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.target);
-    const date = formData.get("date") as string;
+    
+    // 修正日期格式，確保 iztro 能讀懂
+    const rawDate = formData.get("date") as string; 
+    const date = rawDate.replace(/\//g, '-'); 
     const hour = parseInt(formData.get("hour") as string);
     const gender = formData.get("gender") as string;
 
     try {
-      // 1. 使用 iztro 執行物理排盤，確保主星絕對正確
-      const astrolabe = functionalAstrolabe(date, hour, gender, true);
-      const palace = astrolabe.palaces.find(p => p.name === "命宮");
-      const stars = palace?.majorStars.map(s => s.name).join('、') || "無主星";
+      // 1. 精準排盤
+      // @ts-ignore
+      const astrolabe = (iztro.functionalAstrolabe || iztro.default.functionalAstrolabe)(date, hour, gender, true);
+      const palace = astrolabe.palaces.find((p: any) => p.name === "命宮");
+      const stars = palace?.majorStars.map((s: any) => s.name).join('、') || "無主星";
 
-      // 2. 顯示結果 (稍後我們再連動 AI 毒舌功能)
-      setReading(`【排盤成功】\n妳的主星是：${stars}\n\n大師正在觀察妳 2026 年的氣運... (AI 載入中)`);
+      // 2. 這裡預留給妳貼入 Gemini API 的呼叫邏輯
+      // 目前我們先讓它顯示精準結果，確保排盤成功
+      setReading(`【大師開示】\n妳的主星是：${stars}\n\n(AI 毒舌加載中：請確認 Vercel 後台已填入 API Key)`);
+      
     } catch (err) { 
-      alert("日期或格式有誤，請再檢查一下喔！"); 
+      console.error(err);
+      alert("日期格式怪怪的，請確保是 YYYY-MM-DD 喔！"); 
     }
     setLoading(false);
   };
